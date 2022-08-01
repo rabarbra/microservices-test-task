@@ -5,13 +5,12 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #define PORT 8080
-#define RESPONSE_LENGTH 2028
 
 int main() {
   struct   sockaddr_in server;
   int      client_fd;
   int	     server_fd = socket(AF_INET, SOCK_STREAM, 0);
-  char     response[RESPONSE_LENGTH] = {0};
+  char     *response;
   char     *name = getenv("GREETING_NAME");
   char     *header = "HTTP/1.1 200 OK\r\nContent-Length: ";
   server.sin_family = AF_INET;
@@ -21,12 +20,10 @@ int main() {
   listen(server_fd, 128);
   while (1) {
     client_fd = accept(server_fd, NULL, NULL);
-    sprintf(response, "%s%lu\r\n\r\nHello, %s\n", header, strlen(name) + 7, name);
-    for (
-	    int sent = 0;
-	    sent < sizeof(response);
-	    sent += send(client_fd, response+sent, sizeof(response)-sent, 0)
-    );
+    response = calloc(14 + strlen(header) + strlen(name), sizeof(char));
+    dprintf(client_fd, "%s%lu\r\n\r\nHello, %s\n", header, strlen(name) + 8, name);
+    //write(client_fd, response, strlen(response));
+    free(response);
     close(client_fd);
   }
   return 0;
