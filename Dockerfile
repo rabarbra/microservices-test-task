@@ -1,9 +1,11 @@
-FROM python:alpine
-
+FROM gcc AS builder
 WORKDIR /app
-ENV FLASK_APP=app
+COPY app/app.c ./
+RUN gcc -o my_app app.c
 
-COPY app/requirements.txt app/app.py ./
-RUN pip3 install -r requirements.txt
-
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port", "8080"]
+FROM alpine:latest
+WORKDIR /app
+COPY --from=builder /app/my_app ./
+RUN apk add libc6-compat
+CMD ["./my_app"]
+EXPOSE 8080
