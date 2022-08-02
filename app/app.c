@@ -13,6 +13,9 @@ int main() {
   char     *name = getenv("GREETING_NAME");
   char     *header = "HTTP/1.1 200 OK\r\nContent-Length: ";
   pid_t    childpid;
+  if (!name) {
+    name = "";
+  }
   server.sin_family = AF_INET;
   server.sin_port = htons(PORT);
   server.sin_addr.s_addr = htonl(INADDR_ANY);
